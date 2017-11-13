@@ -20,6 +20,7 @@ import org.onosproject.yang.model.YangModel;
 import org.onosproject.yang.model.YangModule;
 import org.onosproject.yang.model.YangModuleId;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -38,6 +39,17 @@ public interface YangModelRegistry {
      */
     void registerModel(ModelRegistrationParam param)
             throws IllegalArgumentException;
+
+    /**
+     * Registers the given generated node class under provied anydata class.
+     *
+     * @param id  resource identifier to reference anydata container under which
+     *            application is expecting the data
+     * @param ids list of resource identifier to reference the nodes
+     *            defined in YANG file which application can send as content
+     *            or child nodes under anydata
+     */
+    void registerAnydataSchema(Class id, List<Class> ids);
 
     /**
      * Unregisters the specified model.

@@ -16,6 +16,8 @@
 
 package org.onosproject.yang.compiler.datamodel;
 
+import java.util.List;
+
 /**
  * Abstraction of YANG version entity. It is used categories the node which
  * can hold the YANG version
@@ -28,4 +30,6 @@ public interface YangVersionHolder {
      * @return the version
      */
     String getVersion();
+
+    List<YangImport> getImportList();
 }

@@ -97,6 +97,7 @@ public class AddToDataNodeIetfNetTest {
             "Exit Node is networks-state.",
             "Exit Node is /.",
     };
+
     /**
      * Test add to data node builder.
      */
@@ -136,7 +137,6 @@ public class AddToDataNodeIetfNetTest {
         value = "node1";
         dBlr = addDataNode(dBlr, "node-id", null, value, null);
         dBlr = exitDataNode(dBlr);
-
         value = null;
         // Adding list inside list
         dBlr = addDataNode(dBlr, "supporting-node", null, value, null);

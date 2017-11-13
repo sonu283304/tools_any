@@ -94,6 +94,7 @@ import static org.onosproject.yang.compiler.translator.tojava.utils.JavaCodeSnip
 import static org.onosproject.yang.compiler.translator.tojava.utils.JavaCodeSnippetGen.getJavaAttributeDefinition;
 import static org.onosproject.yang.compiler.translator.tojava.utils.JavaCodeSnippetGen.getSetValueParaForUnionClass;
 import static org.onosproject.yang.compiler.translator.tojava.utils.JavaFileGeneratorUtils.getDataFromTempFileHandle;
+import static org.onosproject.yang.compiler.translator.tojava.utils.JavaFileGeneratorUtils.getYangDataStructure;
 import static org.onosproject.yang.compiler.translator.tojava.utils.JavaFileGeneratorUtils.initiateJavaFileGeneration;
 import static org.onosproject.yang.compiler.translator.tojava.utils.MethodBodyTypes.ENUM_METHOD_INT_VALUE;
 import static org.onosproject.yang.compiler.translator.tojava.utils.MethodBodyTypes.ENUM_METHOD_STRING_VALUE;
@@ -123,7 +124,6 @@ import static org.onosproject.yang.compiler.translator.tojava.utils.MethodsGener
 import static org.onosproject.yang.compiler.translator.tojava.utils.MethodsGenerator.getToStringMethodClose;
 import static org.onosproject.yang.compiler.translator.tojava.utils.MethodsGenerator.getToStringMethodOpen;
 import static org.onosproject.yang.compiler.translator.tojava.utils.MethodsGenerator.getUnionToStringMethod;
-import static org.onosproject.yang.compiler.translator.tojava.utils.JavaFileGeneratorUtils.getYangDataStructure;
 import static org.onosproject.yang.compiler.translator.tojava.utils.MethodsGenerator.isLeafValueSetInterface;
 import static org.onosproject.yang.compiler.translator.tojava.utils.StringGenerator.getImportString;
 import static org.onosproject.yang.compiler.translator.tojava.utils.StringGenerator.getInterfaceLeafIdEnumMethods;
@@ -459,6 +459,12 @@ public final class JavaFileGenerator {
             methods.add(getAugmentationString());
         }
 
+//        if (curNode instanceof YangJavaAnydata) {
+//            methods.add(getAddAnydataString());
+//            methods.add(getRemoveAnydataString());
+//            methods.add(getAnydatasString());
+//            methods.add(getAnydataString());
+//        }
         // Add methods in impl class.
         for (String method : methods) {
             insertDataIntoJavaFile(file, method);

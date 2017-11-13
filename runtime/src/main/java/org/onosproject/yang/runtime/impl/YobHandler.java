@@ -16,10 +16,12 @@
 
 package org.onosproject.yang.runtime.impl;
 
+import org.onosproject.yang.compiler.datamodel.YangNode;
 import org.onosproject.yang.compiler.datamodel.YangSchemaNode;
 import org.onosproject.yang.model.DataNode;
 import org.onosproject.yang.runtime.YangModelRegistry;
 
+import static org.onosproject.yang.runtime.impl.YobUtils.ANYDATA_SETTER;
 import static org.onosproject.yang.runtime.impl.YobUtils.getClassLoader;
 import static org.onosproject.yang.runtime.impl.YobUtils.getInstanceOfClass;
 import static org.onosproject.yang.runtime.impl.YobUtils.getQualifiedDefaultClass;
@@ -43,10 +45,14 @@ abstract class YobHandler {
         while (node.getReferredSchema() != null) {
             node = node.getReferredSchema();
         }
-
+        String setterName;
         String qualName = getQualifiedDefaultClass(node);
         ClassLoader classLoader = getClassLoader(node, reg);
-        String setterName = schemaNode.getJavaAttributeName();
+        if (((YangNode) node).isAnydataParent) {
+            setterName = ANYDATA_SETTER;
+        } else {
+            setterName = schemaNode.getJavaAttributeName();
+        }
         Object builtObject = getInstanceOfClass(classLoader, qualName);
         return new YobWorkBench(classLoader, builtObject, setterName,
                                 schemaNode);

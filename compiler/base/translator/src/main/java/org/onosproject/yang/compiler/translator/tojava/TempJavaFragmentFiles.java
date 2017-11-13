@@ -16,6 +16,7 @@
 package org.onosproject.yang.compiler.translator.tojava;
 
 import org.onosproject.yang.compiler.datamodel.RpcNotificationContainer;
+import org.onosproject.yang.compiler.datamodel.YangAnydata;
 import org.onosproject.yang.compiler.datamodel.YangAugment;
 import org.onosproject.yang.compiler.datamodel.YangAugmentableNode;
 import org.onosproject.yang.compiler.datamodel.YangCase;
@@ -76,10 +77,11 @@ import static org.onosproject.yang.compiler.translator.tojava.utils.JavaCodeSnip
 import static org.onosproject.yang.compiler.translator.tojava.utils.JavaFileGenerator.generateDefaultClassFile;
 import static org.onosproject.yang.compiler.translator.tojava.utils.JavaFileGenerator.generateInterfaceFile;
 import static org.onosproject.yang.compiler.translator.tojava.utils.JavaFileGenerator.generateKeyClassFile;
+import static org.onosproject.yang.compiler.translator.tojava.utils.JavaFileGeneratorUtils.getAddToListMethodInterface;
 import static org.onosproject.yang.compiler.translator.tojava.utils.JavaFileGeneratorUtils.getFileObject;
+import static org.onosproject.yang.compiler.translator.tojava.utils.JavaFileGeneratorUtils.getYangDataStructure;
 import static org.onosproject.yang.compiler.translator.tojava.utils.JavaIdentifierSyntax.createPackage;
 import static org.onosproject.yang.compiler.translator.tojava.utils.MethodsGenerator.getAddToListMethodImpl;
-import static org.onosproject.yang.compiler.translator.tojava.utils.JavaFileGeneratorUtils.getAddToListMethodInterface;
 import static org.onosproject.yang.compiler.translator.tojava.utils.MethodsGenerator.getDefaultConstructorString;
 import static org.onosproject.yang.compiler.translator.tojava.utils.MethodsGenerator.getEqualsMethod;
 import static org.onosproject.yang.compiler.translator.tojava.utils.MethodsGenerator.getFromStringMethod;
@@ -89,7 +91,6 @@ import static org.onosproject.yang.compiler.translator.tojava.utils.MethodsGener
 import static org.onosproject.yang.compiler.translator.tojava.utils.MethodsGenerator.getSetterForClass;
 import static org.onosproject.yang.compiler.translator.tojava.utils.MethodsGenerator.getSetterString;
 import static org.onosproject.yang.compiler.translator.tojava.utils.MethodsGenerator.getToStringMethod;
-import static org.onosproject.yang.compiler.translator.tojava.utils.JavaFileGeneratorUtils.getYangDataStructure;
 import static org.onosproject.yang.compiler.translator.tojava.utils.StringGenerator.getImportString;
 import static org.onosproject.yang.compiler.translator.tojava.utils.StringGenerator.getOverRideString;
 import static org.onosproject.yang.compiler.translator.tojava.utils.TranslatorErrorType.INVALID_LEAF_HOLDER;
@@ -1576,7 +1577,8 @@ public class TempJavaFragmentFiles {
                                        getJavaFileInfo().getPackage(), true);
         }
 
-        if (curNode instanceof RpcNotificationContainer) {
+        if (curNode instanceof RpcNotificationContainer || curNode instanceof
+                YangAnydata) {
             addImportInfoOfNode(MAP, JAVA_UTIL_PKG,
                                 getGeneratedJavaClassName(),
                                 getJavaFileInfo().getPackage(), false);

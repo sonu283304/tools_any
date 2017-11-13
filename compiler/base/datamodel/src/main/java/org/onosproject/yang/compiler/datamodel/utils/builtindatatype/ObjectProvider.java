@@ -78,7 +78,10 @@ public final class ObjectProvider {
                     return Boolean.parseBoolean(leafValue);
                 }
             case BOOLEAN:
-                return Boolean.parseBoolean(leafValue);
+                if (leafValue.equals("false") || leafValue.equals("true")) {
+                    return Boolean.parseBoolean(leafValue);
+                }
+                throw new IllegalArgumentException(E_DATATYPE);
             case BINARY:
             case BITS:
             case IDENTITYREF:

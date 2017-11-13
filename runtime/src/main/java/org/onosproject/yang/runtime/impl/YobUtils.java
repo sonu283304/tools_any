@@ -83,6 +83,7 @@ final class YobUtils {
     public static final String FORWARD_SLASH = "/";
     private static final Logger log = LoggerFactory.getLogger(YobUtils.class);
     private static final String ENUM_LEAF_IDENTIFIER = "$LeafIdentifier";
+    static final String ANYDATA_SETTER = "addAnydata";
 
     // no instantiation
     private YobUtils() {
@@ -299,7 +300,6 @@ final class YobUtils {
         }
 
         parentSetterMethod.invoke(parentObject, childValue);
-
     }
 
     /**
@@ -343,7 +343,6 @@ final class YobUtils {
         setDataFromStringValue(type.getDataType(), leafValue, parentSetter,
                                parentObject, (YangSchemaNode) refLeaf,
                                (YangSchemaNode) parent);
-
     }
 
     /**
@@ -390,6 +389,19 @@ final class YobUtils {
             }
             return moduleClass.getClassLoader();
         }
+//
+//        if (augment.getYangSchemaNodeType() == YANG_ANYDATA_NODE) {
+//            YangSchemaNode parent = ((YangNode) augment).getParent();
+//            while (((YangNode) parent).getParent() != null) {
+//                parent = ((YangNode) parent).getParent();
+//            }
+//            Class<?> moduleClass = reg.getRegisteredClass(parent);
+//            if (moduleClass == null) {
+//                throw new ModelConverterException(E_FAIL_TO_LOAD_CLASS + parent
+//                        .getJavaClassNameOrBuiltInType());
+//            }
+//            return moduleClass.getClassLoader();
+//        }
         return curLoader;
     }
 

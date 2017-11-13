@@ -56,6 +56,7 @@ import org.onosproject.yang.compiler.datamodel.YangReferenceResolver;
 import org.onosproject.yang.compiler.datamodel.YangResolutionInfo;
 import org.onosproject.yang.compiler.datamodel.YangRpc;
 import org.onosproject.yang.compiler.datamodel.YangSchemaNode;
+import org.onosproject.yang.compiler.datamodel.YangSchemaNodeContextInfo;
 import org.onosproject.yang.compiler.datamodel.YangSchemaNodeIdentifier;
 import org.onosproject.yang.compiler.datamodel.YangType;
 import org.onosproject.yang.compiler.datamodel.YangUnion;
@@ -65,6 +66,7 @@ import org.onosproject.yang.compiler.datamodel.YangUses;
 import org.onosproject.yang.compiler.datamodel.exceptions.DataModelException;
 import org.onosproject.yang.compiler.datamodel.utils.builtindatatype.YangDataTypes;
 import org.onosproject.yang.model.LeafType;
+import org.onosproject.yang.model.SchemaContext;
 import org.onosproject.yang.model.SchemaId;
 
 import java.io.File;
@@ -120,6 +122,8 @@ public final class DataModelUtils {
     public static final String TYPEDEF = "Typedef";
     public static final String IDENTITY = "Identity";
     private static final String SLASH = File.separator;
+    public static final String FMT_NOT_REG =
+            "Requested %s module is not registered.";
     public static final String FMT_NOT_EXIST =
             "Requested %s is not child in %s.";
     private static final String E_DATATYPE = "Data type not supported.";
@@ -418,7 +422,7 @@ public final class DataModelUtils {
      */
     public static void cloneListOfLeaf(YangLeavesHolder clonedNode,
                                        YangUses yangUses,
-                                       boolean isDeviation)
+                                       boolean isDeviation, boolean isAnydata)
             throws CloneNotSupportedException, DataModelException {
 
         List<YangLeaf> leaves = clonedNode.getListOfLeaf();
@@ -436,6 +440,13 @@ public final class DataModelUtils {
                 clonedLeaf.setReferredLeaf(leaf);
                 clonedLeaf.setContainedIn(clonedNode);
                 clonedLeaves.add(clonedLeaf);
+                if (isAnydata) {
+                    YangSchemaNodeContextInfo info = ((YangNode) clonedNode)
+                            .getYsnContextInfoMap()
+                            .get(clonedLeaf.getYangSchemaNodeIdentifier());
+                    info.setSchemaNode(clonedLeaf);
+                    clonedLeaf.setParentContext((SchemaContext) clonedNode);
+                }
             }
             clonedNode.setListOfLeaf(clonedLeaves);
         }
@@ -511,7 +522,8 @@ public final class DataModelUtils {
      * @throws DataModelException         data model error
      */
     public static void cloneListOfLeafList(
-            YangLeavesHolder clonedNode, YangUses yangUses, boolean isDeviation)
+            YangLeavesHolder clonedNode, YangUses yangUses, boolean
+            isDeviation, boolean isAnydata)
             throws CloneNotSupportedException, DataModelException {
 
         List<YangLeafList> listOfLeafList = clonedNode.getListOfLeafList();
@@ -529,6 +541,13 @@ public final class DataModelUtils {
                 clonedLeafList.setReferredSchemaLeafList(leafList);
                 clonedLeafList.setContainedIn(clonedNode);
                 clonedList.add(clonedLeafList);
+                if (isAnydata) {
+                    YangSchemaNodeContextInfo info = ((YangNode) clonedList)
+                            .getYsnContextInfoMap()
+                            .get(clonedLeafList.getYangSchemaNodeIdentifier());
+                    info.setSchemaNode(clonedLeafList);
+                    clonedLeafList.setParentContext((SchemaContext) clonedNode);
+                }
             }
             clonedNode.setListOfLeafList(clonedList);
         }

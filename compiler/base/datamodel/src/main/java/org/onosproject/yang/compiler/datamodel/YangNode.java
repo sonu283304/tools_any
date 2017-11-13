@@ -24,6 +24,7 @@ import org.onosproject.yang.model.SchemaId;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import static org.onosproject.yang.compiler.datamodel.TraversalType.CHILD;
@@ -163,6 +164,7 @@ public abstract class YangNode
     private YangNode() {
     }
 
+    public boolean isAnydataParent;
     /**
      * Creates a specific type of node.
      *
@@ -449,16 +451,25 @@ public abstract class YangNode
      * @throws CloneNotSupportedException clone is not supported by the referred
      *                                    node
      */
-    public YangNode clone(YangUses yangUses, boolean isDeviation)
-            throws CloneNotSupportedException {
+    public YangNode clone(YangUses yangUses, boolean isDeviation, boolean
+            isAnydata) throws CloneNotSupportedException {
         YangNode clonedNode = (YangNode) super.clone();
-
+        if (isAnydata) {
+            Map<YangSchemaNodeIdentifier, YangSchemaNodeContextInfo> map =
+                    ysnContextInfoMap;
+            Iterator<YangSchemaNodeContextInfo> it = map.values().iterator();
+            while (it.hasNext()) {
+                YangSchemaNodeContextInfo info = it.next();
+                clonedNode.ysnContextInfoMap.put(info.getSchemaNode()
+                                                         .getYangSchemaNodeIdentifier(), info.clone());
+            }
+        }
         if (clonedNode instanceof YangLeavesHolder) {
             try {
                 cloneListOfLeaf((YangLeavesHolder) clonedNode, yangUses,
-                                isDeviation);
+                                isDeviation, isAnydata);
                 cloneListOfLeafList((YangLeavesHolder) clonedNode, yangUses,
-                                    isDeviation);
+                                    isDeviation, isAnydata);
             } catch (DataModelException e) {
                 throw new CloneNotSupportedException(e.getMessage());
             }
@@ -468,7 +479,7 @@ public abstract class YangNode
         clonedNode.setChild(null);
         clonedNode.setNextSibling(null);
         clonedNode.setPreviousSibling(null);
-        if (!isDeviation) {
+        if (!isDeviation && !isAnydata) {
             clonedNode.yangSchemaNodeIdentifier =
                     clonedNode.yangSchemaNodeIdentifier.clone();
             clonedNode.ysnContextInfoMap = new HashMap<>();
@@ -492,7 +503,8 @@ public abstract class YangNode
      * @throws DataModelException data model error
      */
     public static void cloneSubTree(YangNode srcRootNode, YangNode dstRootNode,
-                                    YangUses yangUses, boolean isDeviation)
+                                    YangUses yangUses, boolean isDeviation,
+                                    boolean isAnydata)
             throws DataModelException {
 
         YangNode nextNodeToClone = srcRootNode;
@@ -528,7 +540,7 @@ public abstract class YangNode
                 }
 
                 if (curTraversal != PARENT) {
-                    newNode = nextNodeToClone.clone(yangUses, isDeviation);
+                    newNode = nextNodeToClone.clone(yangUses, isDeviation, isAnydata);
                     if (newNode instanceof YangUses) {
                         ((YangUses) newNode).setCloned(true);
                     }
@@ -542,6 +554,14 @@ public abstract class YangNode
                      * add the new node to the cloned tree.
                      */
                     clonedTreeCurNode.addChild(newNode);
+
+                    if (isAnydata) {
+                        YangSchemaNodeContextInfo info =
+                                clonedTreeCurNode.ysnContextInfoMap.get(
+                                        newNode.yangSchemaNodeIdentifier);
+                        info.setSchemaNode(newNode);
+                        newNode.setParentContext(clonedTreeCurNode);
+                    }
 
                     /*
                      * update the cloned tree's traversal current node as the

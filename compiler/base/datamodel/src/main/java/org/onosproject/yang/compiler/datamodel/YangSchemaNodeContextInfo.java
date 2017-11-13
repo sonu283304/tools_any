@@ -23,13 +23,19 @@ import java.io.Serializable;
  * refer the YANG data nodes schema context information.
  */
 public class YangSchemaNodeContextInfo extends DefaultLocationInfo
-        implements Serializable {
+        implements Serializable, Cloneable {
 
     private static final long serialVersionUID = 806201613L;
 
     // Current schema node
     private YangSchemaNode schemaNode;
 
+    /*
+     * Flag to check current node parent linking status if current node
+     * is augment and linked to anydata then flag will be set to true, else
+     * false.
+     */
+    boolean isAnydataParent;
     /*
      * Context switched schema node, it will be non null only for the scenarios
      * in which context switch is there like augment, choice etc, in this case
@@ -55,7 +61,7 @@ public class YangSchemaNodeContextInfo extends DefaultLocationInfo
      *
      * @param schemaNode YANG schema node
      */
-    void setSchemaNode(YangSchemaNode schemaNode) {
+    public void setSchemaNode(YangSchemaNode schemaNode) {
         this.schemaNode = schemaNode;
     }
 
@@ -73,7 +79,38 @@ public class YangSchemaNodeContextInfo extends DefaultLocationInfo
      *
      * @param contextSwitchedNode context switched node
      */
-    void setContextSwitchedNode(YangSchemaNode contextSwitchedNode) {
+    public void setContextSwitchedNode(YangSchemaNode contextSwitchedNode) {
         this.contextSwitchedNode = contextSwitchedNode;
+    }
+
+    /**
+     * Returns the current node and its parent linking status.
+     *
+     * @return node and its parent linking status
+     */
+    public boolean isAnydataParent() {
+        return isAnydataParent;
+    }
+
+    /**
+     * Sets the current node and its parent linking status.
+     *
+     * @param anydataParent
+     */
+    public void setAnydataParent(boolean anydataParent) {
+        isAnydataParent = anydataParent;
+    }
+
+    /**
+     * Clones the current node context info contents and create a new context
+     * info with same context info.
+     *
+     * @return cloned node
+     */
+    public YangSchemaNodeContextInfo clone() throws
+            CloneNotSupportedException {
+        YangSchemaNodeContextInfo info = new YangSchemaNodeContextInfo();
+        info.setContextSwitchedNode(contextSwitchedNode);
+        return info;
     }
 }

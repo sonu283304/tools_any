@@ -338,6 +338,46 @@ public final class MethodsGenerator {
                 + getDefaultConstructor(name, modifierType) + NEW_LINE;
     }
 
+//    /**
+//     * Returns add anydata method string.
+//     *
+//     * @return add anydata string
+//     */
+//    public static String getAddAnydataString() {
+//        return getOverRideString() +
+//                getAddAnydata();
+//    }
+//
+//    /**
+//     * Returns remove anydata method string.
+//     *
+//     * @return remove anydata string
+//     */
+//    public static String getRemoveAnydataString() {
+//        return getOverRideString() +
+//                getRemoveAnydata();
+//    }
+//
+//    /**
+//     * Returns anydatas method string.
+//     *
+//     * @return anydatas string
+//     */
+//    public static String getAnydatasString() {
+//        return getOverRideString() +
+//                getAnydatas();
+//    }
+//
+//    /**
+//     * Returns anydata method string.
+//     *
+//     * @return anydata string
+//     */
+//    public static String getAnydataString() {
+//        return getOverRideString() +
+//                getAnydata();
+//    }
+
     /**
      * Returns add augmentation method string.
      *
@@ -664,6 +704,62 @@ public final class MethodsGenerator {
                                null, null, CLASS_TYPE) +
                 methodClose(FOUR_SPACE);
     }
+
+//    /**
+//     * Returns the add anydata strings for class file.
+//     *
+//     * @return add anydata method for class
+//     */
+//    private static String getAddAnydata() {
+//        return methodSignature(ADD_ANYDATA, EMPTY_STRING, PUBLIC, OBJ,
+//                               VOID, MODEL_OBJECT, CLASS_TYPE) +
+//                methodClose(FOUR_SPACE);
+//    }
+//
+//    /**
+//     * Returns the remove anydata strings for class file.
+//     *
+//     * @return remove anydata method for class
+//     */
+//    private static String getRemoveAnydata() {
+//        return methodSignature(REMOVE_ANYDATA, EMPTY_STRING, PUBLIC,
+//                               OBJ, VOID, MODEL_OBJECT, CLASS_TYPE) +
+//                methodClose(FOUR_SPACE);
+//    }
+//
+//    /**
+//     * Returns the anydatas method for class file.
+//     *
+//     * @return anydatas method for class
+//     */
+//    private static String getAnydatas() {
+//        String methodReturnType = MAP + LEFT_ANGULAR_BRACKET + CAMEL_CLASS +
+//                LEFT_ANGULAR_BRACKET + QUESTION_MARK + SPACE + EXTEND +
+//                SPACE + MODEL_OBJECT + RIGHT_ANGULAR_BRACKET + COMMA +
+//                SPACE + MODEL_OBJECT + RIGHT_ANGULAR_BRACKET;
+//        return methodSignature(ANYDATAS, EMPTY_STRING, PUBLIC, null,
+//                               methodReturnType, null, CLASS_TYPE) + NEW_LINE +
+//                getReturnString(NULL, EIGHT_SPACE_INDENTATION) + SEMI_COLON +
+//                NEW_LINE + methodClose(FOUR_SPACE);
+//    }
+//
+//    /**
+//     * Returns the anydata strings for class file.
+//     *
+//     * @return anydata method for class
+//     */
+//    private static String getAnydata() {
+//        String methodReturnType = LEFT_ANGULAR_BRACKET + TEMPLATE_T + SPACE +
+//                EXTEND + SPACE + MODEL_OBJECT + RIGHT_ANGULAR_BRACKET + SPACE +
+//                TEMPLATE_T;
+//        String paraReturntype = CAMEL_CLASS + LEFT_ANGULAR_BRACKET + TEMPLATE_T +
+//                RIGHT_ANGULAR_BRACKET;
+//        return methodSignature(ANYDATA, EMPTY_STRING, PUBLIC, VARIABLE_C,
+//                               methodReturnType,
+//                               paraReturntype, CLASS_TYPE) + NEW_LINE +
+//                getReturnString(NULL, EIGHT_SPACE_INDENTATION) + SEMI_COLON +
+//                NEW_LINE + methodClose(FOUR_SPACE);
+//    }
 
     /**
      * Returns the add augmentation strings for class file.

@@ -1373,7 +1373,7 @@ public class YangResolutionInfoImpl<T> extends DefaultLocationInfo
         }
 
         // clone subtree
-        cloneSubTree(srcNode, dstNode, null, true);
+        cloneSubTree(srcNode, dstNode, null, true, false);
 
         /*
          * Cloning of deviated module is done, set isDeviatedNodeCloned

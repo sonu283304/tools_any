@@ -22,6 +22,7 @@ import org.onosproject.yang.compiler.datamodel.YangInclude;
 import org.onosproject.yang.compiler.datamodel.YangModule;
 import org.onosproject.yang.compiler.datamodel.YangNode;
 import org.onosproject.yang.compiler.datamodel.YangSchemaNode;
+import org.onosproject.yang.compiler.datamodel.YangSchemaNodeContextInfo;
 import org.onosproject.yang.compiler.datamodel.YangSchemaNodeIdentifier;
 import org.onosproject.yang.compiler.datamodel.YangSubModule;
 import org.onosproject.yang.compiler.datamodel.exceptions.DataModelException;
@@ -48,6 +49,8 @@ import java.util.concurrent.ConcurrentMap;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.Collections.sort;
 import static java.util.Collections.unmodifiableSet;
+import static org.onosproject.yang.compiler.datamodel.YangNode.cloneSubTree;
+import static org.onosproject.yang.compiler.datamodel.YangNodeType.AUGMENT_NODE;
 import static org.onosproject.yang.compiler.datamodel.utils.DataModelUtils.getDateInStringFormat;
 import static org.onosproject.yang.compiler.datamodel.utils.DataModelUtils.getNodeIdFromSchemaId;
 import static org.onosproject.yang.compiler.tool.YangCompilerManager.processModuleId;
@@ -56,6 +59,11 @@ import static org.onosproject.yang.model.DataNode.Type.SINGLE_INSTANCE_NODE;
 import static org.onosproject.yang.runtime.RuntimeHelper.getInterfaceClassName;
 import static org.onosproject.yang.runtime.RuntimeHelper.getNodes;
 import static org.onosproject.yang.runtime.RuntimeHelper.getServiceName;
+import static org.onosproject.yang.runtime.impl.UtilsConstants.AT;
+import static org.onosproject.yang.runtime.impl.UtilsConstants.E_MEXIST;
+import static org.onosproject.yang.runtime.impl.UtilsConstants.E_NEXIST;
+import static org.onosproject.yang.runtime.impl.UtilsConstants.E_NOT_VAL;
+import static org.onosproject.yang.runtime.impl.UtilsConstants.E_NULL;
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
@@ -63,14 +71,7 @@ import static org.slf4j.LoggerFactory.getLogger;
  */
 public class DefaultYangModelRegistry implements YangModelRegistry,
         SingleInstanceNodeContext {
-
-    private static final String AT = "@";
     private final Logger log = getLogger(getClass());
-    private static final String E_NEXIST = "node with {} namespace not found.";
-    private static final String E_MEXIST =
-            "Model with given modelId already exist";
-    private static final String E_NULL = "Model must not be null";
-    private static final String E_NOT_VAL = "Model id is invalid";
 
     /*
      * Map for storing YANG schema nodes. Key will be the schema name of
@@ -168,6 +169,54 @@ public class DefaultYangModelRegistry implements YangModelRegistry,
 
         //update child context
         updateChildContext(curNodes);
+    }
+
+    @Override
+    public void registerAnydataSchema(Class c, List<Class> cs) {
+
+        AnydataHandler h = new AnydataHandler(this);
+        YangSchemaNodeContextInfo in = h.getContextInfoFromClass(c);
+        YangNode anySchema = ((YangNode) in.getSchemaNode());
+        Map<YangSchemaNodeIdentifier, YangSchemaNodeContextInfo> m =
+                anySchema.getYsnContextInfoMap();
+        YangSchemaNodeContextInfo info;
+        int index = 0;
+        YangNode preNode = null;
+        for (Class c1 : cs) {
+            index++;
+            info = h.getContextInfoFromClass(c1);
+            if (info != null) {
+                try {
+                    YangNode n = (YangNode) info.getSchemaNode();
+                    YangNode cn = n.clone(null, false, true);
+                    try {
+                        cloneSubTree(n, cn, null, false, true);
+                    } catch (DataModelException e) {
+                        e.printStackTrace();
+                    }
+                    cn.setParent(n.getParent());
+                    cn.setParentContext(anySchema);
+                    cn.isAnydataParent = true;
+                    YangSchemaNodeContextInfo info1 = info.clone();
+                    info1.setSchemaNode(cn);
+                    if (n.getParent().getNodeType() == AUGMENT_NODE) {
+                        info1.setContextSwitchedNode(null);
+                    }
+
+                    m.put(cn.getYangSchemaNodeIdentifier(), info1);
+                    if (index == 1) {
+                        anySchema.setChild(cn);
+                        preNode = cn;
+                    }
+                    if (preNode != null) {
+                        preNode.setNextSibling(cn);
+                        cn.setPreviousSibling(preNode);
+                    }
+                } catch (CloneNotSupportedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     /**

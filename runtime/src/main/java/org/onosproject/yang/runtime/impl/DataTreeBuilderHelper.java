@@ -28,6 +28,7 @@ import org.onosproject.yang.compiler.datamodel.YangLeavesHolder;
 import org.onosproject.yang.compiler.datamodel.YangList;
 import org.onosproject.yang.compiler.datamodel.YangNode;
 import org.onosproject.yang.compiler.datamodel.YangSchemaNode;
+import org.onosproject.yang.model.Anydata;
 import org.onosproject.yang.model.DataNode;
 import org.onosproject.yang.model.InnerNode;
 import org.onosproject.yang.model.LeafNode;
@@ -64,6 +65,7 @@ import static org.onosproject.yang.runtime.impl.ModelConverterUtil.isMultiInstan
 import static org.onosproject.yang.runtime.impl.ModelConverterUtil.isNodeProcessCompleted;
 import static org.onosproject.yang.runtime.impl.ModelConverterUtil.isNonProcessableNode;
 import static org.onosproject.yang.runtime.impl.ModelConverterUtil.isTypeEmpty;
+import static org.onosproject.yang.runtime.impl.YobConstants.E_FAIL_TO_LOAD_CLASS;
 
 
 /**
@@ -239,6 +241,17 @@ public class DataTreeBuilderHelper {
                     continue;
                 }
             }
+//            if (curTraversal != PARENT && curNode instanceof YangAnydata) {
+//                augmentNodeInfo = null;
+//                listNodeInfo = null;
+//                curTraversal = CHILD;
+//                curNode = (YangNode) ((YangAnydata)curNode).getAnydataChild();
+//                if (isNonProcessableNode(curNode)) {
+//                    ModelConverterTraversalInfo traverseInfo = getProcessableInfo(curNode);
+//                    curNode = traverseInfo.getYangNode();
+//                    curTraversal = traverseInfo.getTraverseType();
+//                }
+//            }
             /*
              * Processes the child, after processing the node. If complete
              * child depth is over, it takes up sibling and processes it.
@@ -310,6 +323,9 @@ public class DataTreeBuilderHelper {
      * @return parent schema node
      */
     private YangNode getParentSchemaNode(YangNode curNode) {
+        if (curNode.isAnydataParent) {
+            return (YangNode) curNode.getParentContext();
+        }
         if (curNode instanceof YangAugment) {
             /*
              * If curNode is augment, either next augment or augmented node
@@ -438,6 +454,7 @@ public class DataTreeBuilderHelper {
         }
 
         switch (curNode.getYangSchemaNodeType()) {
+            case YANG_ANYDATA_NODE:
             case YANG_SINGLE_INSTANCE_NODE:
                 curNodeInfo.type(SINGLE_INSTANCE_NODE);
                 nodeObj = processSingleInstanceNode(curNode, curNodeInfo,
@@ -696,6 +713,9 @@ public class DataTreeBuilderHelper {
      */
     Object getChildObject(YangNode curNode,
                           DataTreeNodeInfo parentNodeInfo) {
+        if (curNode.isAnydataParent) {
+            return getAnydataChildObject(curNode, parentNodeInfo);
+        }
         String nodeJavaName = curNode.getJavaAttributeName();
         Object parentObj = getParentObjectOfNode(parentNodeInfo,
                                                  curNode.getParent());
@@ -704,6 +724,34 @@ public class DataTreeBuilderHelper {
         } catch (NoSuchMethodException e) {
             throw new ModelConverterException(e);
         }
+    }
+
+    /**
+     *
+     * @param curNode
+     * @param info
+     * @return
+     */
+    private Object getAnydataChildObject(YangNode curNode, DataTreeNodeInfo info) {
+        Object parentObj = getParentObjectOfNode(info, (YangNode) curNode.getParentContext());
+        List<Object> objs = new ArrayList<>();
+        YangSchemaNode node = reg.getForNameSpace(
+                curNode.getNameSpace().getModuleNamespace(), false);
+        Class<?> moduleClass = reg.getRegisteredClass(node);
+        if (moduleClass == null) {
+            throw new ModelConverterException(E_FAIL_TO_LOAD_CLASS + node
+                    .getJavaClassNameOrBuiltInType());
+        }
+        String className = curNode.getJavaPackage() + PERIOD + DEFAULT_CAPS +
+                getCapitalCase(curNode.getJavaAttributeName());
+        Class childClass;
+        try {
+            childClass = moduleClass.getClassLoader().loadClass(className);
+        } catch (ClassNotFoundException e) {
+            throw new ModelConverterException(E_FAIL_TO_LOAD_CLASS + className);
+        }
+        objs.add(((Anydata) parentObj).anydata(childClass));
+        return objs;
     }
 
     /**
@@ -957,8 +1005,13 @@ public class DataTreeBuilderHelper {
             }
         }
         YangNode parent = curNode.getParent();
+        if (curNode.isAnydataParent) {
+            parent = (YangNode) curNode.getParentContext();
+        } else {
+            parent = curNode.getParent();
+        }
         if (!(parent instanceof RpcNotificationContainer)) {
-            return new ModelConverterTraversalInfo(curNode.getParent(), PARENT);
+            return new ModelConverterTraversalInfo(parent, PARENT);
         }
         return new ModelConverterTraversalInfo((YangNode) exitBuilderSchema, PARENT);
     }

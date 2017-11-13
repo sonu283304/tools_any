@@ -25,8 +25,10 @@ import org.onosproject.yang.model.SchemaId;
 import org.onosproject.yang.model.SingleInstanceNodeContext;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.onosproject.yang.compiler.datamodel.utils.DataModelUtils.E_ID;
@@ -156,7 +158,7 @@ public abstract class YangAnydata
 
     @Override
     public YangSchemaNodeType getYangSchemaNodeType() {
-        return YangSchemaNodeType.YANG_SINGLE_INSTANCE_NODE;
+        return YangSchemaNodeType.YANG_ANYDATA_NODE;
     }
 
     /**
@@ -372,4 +374,16 @@ public abstract class YangAnydata
             throw new IllegalArgumentException(e.getMessage());
         }
     }
+
+    public YangSchemaNode getAnydataChild() {
+        Map<YangSchemaNodeIdentifier, YangSchemaNodeContextInfo> m = getYsnContextInfoMap();
+        if (!m.isEmpty()) {
+            Iterator<YangSchemaNodeContextInfo> it = getYsnContextInfoMap().values().iterator();
+            if (it.hasNext()) {
+                return it.next().getSchemaNode();
+            }
+        }
+        return null;
+    }
+
 }

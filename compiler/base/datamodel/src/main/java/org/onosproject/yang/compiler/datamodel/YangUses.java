@@ -447,7 +447,7 @@ public abstract class YangUses
         }
 
         try {
-            cloneSubTree(referredGrouping, usesParentNode, this, false);
+            cloneSubTree(referredGrouping, usesParentNode, this, false, false);
         } catch (DataModelException e) {
             throw new DataModelException(e.getMessage());
         }
@@ -574,8 +574,8 @@ public abstract class YangUses
     }
 
     @Override
-    public YangNode clone(YangUses node, boolean isDeviation) throws
-            CloneNotSupportedException {
+    public YangNode clone(YangUses node, boolean isDeviation, boolean
+            isAnydata) throws CloneNotSupportedException {
         YangNode clnNode = (YangNode) super.clone();
         clnNode.setParent(null);
         clnNode.setChild(null);

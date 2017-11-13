@@ -28,9 +28,13 @@ import static org.onosproject.yang.model.ModelObject.ModelObjectType.NON_ATOMIC;
  * Abstraction of an entity that provides common basis for all POJOs which are
  * generated from a YANG model.
  */
-public abstract class InnerModelObject extends ModelObject implements Augmentable {
+public abstract class InnerModelObject extends ModelObject implements
+        Augmentable, Anydata {
 
     private final ConcurrentMap<Class<? extends InnerModelObject>, InnerModelObject> augments =
+            new ConcurrentHashMap<>();
+
+    private final ConcurrentMap<Class<? extends InnerModelObject>, InnerModelObject> anydatas =
             new ConcurrentHashMap<>();
 
     /**
@@ -58,5 +62,25 @@ public abstract class InnerModelObject extends ModelObject implements Augmentabl
     @Override
     public <T extends InnerModelObject> T augmentation(Class<T> c) {
         return (T) augments.get(c);
+    }
+
+    @Override
+    public void addAnydata(InnerModelObject obj) {
+        anydatas.put(obj.getClass(), obj);
+    }
+
+    @Override
+    public void removeAnydata(InnerModelObject obj) {
+        anydatas.remove(obj.getClass());
+    }
+
+    @Override
+    public Map<Class<? extends InnerModelObject>, InnerModelObject> anydatas() {
+        return ImmutableMap.copyOf(anydatas);
+    }
+
+    @Override
+    public <T extends InnerModelObject> T anydata(Class<T> c) {
+        return (T) anydatas.get(c);
     }
 }

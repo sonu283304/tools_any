@@ -46,6 +46,7 @@ import static org.onosproject.yang.runtime.impl.YobConstants.E_HAS_NO_CHILD;
 import static org.onosproject.yang.runtime.impl.YobConstants.L_FAIL_TO_GET_FIELD;
 import static org.onosproject.yang.runtime.impl.YobConstants.L_FAIL_TO_GET_METHOD;
 import static org.onosproject.yang.runtime.impl.YobConstants.L_FAIL_TO_INVOKE_METHOD;
+import static org.onosproject.yang.runtime.impl.YobUtils.ANYDATA_SETTER;
 import static org.onosproject.yang.runtime.impl.YobUtils.getCapitalCase;
 import static org.onosproject.yang.runtime.impl.YobUtils.getInstanceOfClass;
 import static org.onosproject.yang.runtime.impl.YobUtils.getQualifiedDefaultClass;
@@ -221,6 +222,12 @@ class YobWorkBench {
         String parentClassName = parentClass.getName();
         try {
             Class<?> classType = null;
+            if (setter.equals(ANYDATA_SETTER)) {
+                Method method = parentClass.getSuperclass()
+                        .getDeclaredMethod(setter, InnerModelObject.class);
+                method.invoke(parentObj, curObj);
+                return;
+            }
             Field fieldName = parentClass.getDeclaredField(setter);
             if (fieldName != null) {
                 classType = fieldName.getType();
@@ -267,7 +274,7 @@ class YobWorkBench {
                 schemaNode.getYangSchemaNodeIdentifier();
 
         YobWorkBench curWorkBench = this;
-        YangSchemaNode nonSchemaHolder;
+        YangSchemaNode nonSchemaHolder = null;
         do {
 
             //Current Schema node context
@@ -277,15 +284,12 @@ class YobWorkBench {
                 //Find the new schema context node.
                 parentSchema = curWorkBench.schemaNode();
                 schemaContext = parentSchema.getChildSchema(targetNode);
-
             } catch (DataModelException e) {
                 throw new ModelConverterException(parentSchema.getName() +
                                                           E_HAS_NO_CHILD +
                                                           targetNode.getName(), e);
             }
-
             nonSchemaHolder = schemaContext.getContextSwitchedNode();
-
             //If the descendant schema node is in switched context
             if (nonSchemaHolder != null) {
 
@@ -307,7 +311,6 @@ class YobWorkBench {
                     curWorkBench = childWorkBench;
                 }
             }
-
         } while (nonSchemaHolder != null);
         return curWorkBench.getBuiltObject();
     }
@@ -344,7 +347,6 @@ class YobWorkBench {
                 ctxSwitchedNode = childContext.getContextSwitchedNode();
                 name = getQualifiedDefaultClass(
                         childContext.getContextSwitchedNode());
-
             } catch (DataModelException e) {
                 throw new ModelConverterException(ctxSwitchedNode.getName() +
                                                           E_HAS_NO_CHILD +
@@ -402,7 +404,6 @@ class YobWorkBench {
                                   childWorkBench.getBuiltObject());
                 continue;
             }
-
             setObjectInParent(builtObject, childWorkBench.setterInParent,
                               childWorkBench.getBuiltObject(), SINGLE_INSTANCE_NODE);
         }

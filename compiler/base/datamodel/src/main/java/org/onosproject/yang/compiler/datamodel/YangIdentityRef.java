@@ -87,7 +87,7 @@ public class YangIdentityRef
 
     @Override
     public void addToChildSchemaMap(YangSchemaNodeIdentifier schemaNodeIdentifier,
-            YangSchemaNodeContextInfo yangSchemaNodeContextInfo)
+                                    YangSchemaNodeContextInfo yangSchemaNodeContextInfo)
             throws DataModelException {
         // Do nothing.
     }
@@ -126,10 +126,10 @@ public class YangIdentityRef
 
         if (identity == null) {
             throw new DataModelException("Linker Error: Identity information is missing. " +
-                    getName() + " in " +
-                    getLineNumber() + " at " +
-                    getCharPosition() +
-                    " in " + getFileName() + "\"");
+                                                 getName() + " in " +
+                                                 getLineNumber() + " at " +
+                                                 getCharPosition() +
+                                                 " in " + getFileName() + "\"");
         }
 
         while (identity.getBaseNode() != null) {
@@ -293,8 +293,8 @@ public class YangIdentityRef
     }
 
     @Override
-    public YangNode clone(YangUses yangUses, boolean isDeviation)
-            throws CloneNotSupportedException {
+    public YangNode clone(YangUses yangUses, boolean isDeviation, boolean
+            isAnydata) throws CloneNotSupportedException {
         return (YangNode) super.clone();
     }
 }
